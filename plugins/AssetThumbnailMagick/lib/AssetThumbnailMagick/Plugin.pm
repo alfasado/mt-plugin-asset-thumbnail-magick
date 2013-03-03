@@ -27,8 +27,9 @@ sub _hdlr_get_thumbnail {
                    suffix => $suffix,
                    add_str => $add_str,
                    type => $type,
-                   round => $args->{ round } };
-    $file = __convert2thumbnail( $params );
+                   round => $args->{ round },
+                   force => $args->{ force } };
+    $file = __mask( $params );
     my ( $url, $w, $h ) = $asset->thumbnail_url( %arg );
     $url =~ s/(\.$suffix$)/$add_str.png/i;
     if ( $args->{ wants } && $args->{ wants } eq 'path' ) {
@@ -37,13 +38,14 @@ sub _hdlr_get_thumbnail {
     return $url || '';
 }
 
-sub __convert2thumbnail {
+sub __mask {
     my $params = shift;
     my $photo = $params->{ file };
     my $suffix = $params->{ suffix };
     my $add_str = $params->{ add_str };
     my $type = $params->{ type };
     my $round = $params->{ round };
+    my $force = $params->{ force };
     require MT::FileMgr;
     my $fmgr = MT::FileMgr->new( 'Local' ) or die MT::FileMgr->errstr;
     if ( $fmgr->exists( $photo ) ) {
@@ -52,9 +54,11 @@ sub __convert2thumbnail {
         $image->Read( $photo );
         my $new = $photo;
         $new =~ s/(\.$suffix$)/$add_str.png/i;
-        if ( $fmgr->exists( $new ) ) {
-            if ( $fmgr->file_mod_time( $new ) > $fmgr->file_mod_time( $photo ) ) {
-                return $new;
+        if (! $force ) {
+            if ( $fmgr->exists( $new ) ) {
+                if ( $fmgr->file_mod_time( $new ) > $fmgr->file_mod_time( $photo ) ) {
+                    return $new;
+                }
             }
         }
         my $size;
