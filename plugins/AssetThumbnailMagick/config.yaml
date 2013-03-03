@@ -1,0 +1,11 @@
+name: AssetThumbnailMagick
+id  : AssetThumbnailMagick
+key:  assetthumbnailmagick
+version: 0.2
+author_link: http://alfasado.net/
+author_name: Alfasado Inc.
+l10n_class: AssetThumbnailMagick::L10N
+description: <__trans phrase="Cutting a circle out of an image.">
+tags:
+    function:
+        AssetThumbnailMagick: AssetThumbnailMagick::Plugin::_hdlr_get_thumbnail
