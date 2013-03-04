@@ -33,7 +33,6 @@ sub _hdlr_get_thumbnail {
     my ( $url, $w, $h ) = $asset->thumbnail_url( %arg );
     $url =~ s/\.$suffix$/$add_str.png/i;
     if ( $args->{ wants } && $args->{ wants } eq 'path' ) {
-        $file =~ s/\.$suffix$/$add_str.png/i;
         return $file;
     }
     return $url || '';
