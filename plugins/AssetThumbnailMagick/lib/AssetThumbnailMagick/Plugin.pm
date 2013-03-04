@@ -31,8 +31,9 @@ sub _hdlr_get_thumbnail {
                    force => $args->{ force } };
     $file = __mask( $params );
     my ( $url, $w, $h ) = $asset->thumbnail_url( %arg );
-    $url =~ s/(\.$suffix$)/$add_str.png/i;
+    $url =~ s/\.$suffix$/$add_str.png/i;
     if ( $args->{ wants } && $args->{ wants } eq 'path' ) {
+        $file =~ s/\.$suffix$/$add_str.png/i;
         return $file;
     }
     return $url || '';
@@ -70,12 +71,12 @@ sub __mask {
         $mask->ReadImage( 'xc:none' );
         if ( $type eq 'circle' ) {
             $mask->Draw( primitive => 'ellipse',
-                         fill=>'#FFFFFF',
-                         points=>"${harf_w},${harf_h},${harf_w},${harf_h},0,360" );
+                         fill => '#FFFFFF',
+                         points => "${harf_w},${harf_h},${harf_w},${harf_h},0,360" );
         } else {
             $mask->Draw( primitive => 'roundRectangle',
-                         fill=>'#FFFFFF',
-                         points=>"0,0,${width},${height},${round},${round}" );
+                         fill => '#FFFFFF',
+                         points => "0,0,${width},${height},${round},${round}" );
         }
         $mask->Composite( 'image' => $image, 'mask' => $mask );
         binmode( STDOUT );
