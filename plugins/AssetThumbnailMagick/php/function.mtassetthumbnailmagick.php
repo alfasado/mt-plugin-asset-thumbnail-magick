@@ -18,6 +18,16 @@ function smarty_function_mtassetthumbnailmagick ( $args, &$ctx ) {
     $suffix = $pinfo[ 'extension' ];
     $new = preg_replace( "/\.$suffix$/", $add_str . ".png", $file );
     $url = preg_replace( "/\.$suffix$/", $add_str . ".png", $url );
+    if (! $args[ 'force' ] ) {
+        if ( file_exists( $new ) ) {
+            if ( filemtime( $new ) > filemtime( $file ) ) {
+                if ( $args[ 'wants' ] && ( $args[ 'wants' ] === 'path' ) ) {
+                    return $new;
+                }
+                return $url;
+            }
+        }
+    }
     $im = new Imagick( $file );
     $mask = new Imagick();
     $mask->newImage( $width, $height, 'none', 'png' );
