@@ -11,7 +11,7 @@ function smarty_function_mtassetthumbnailmagick ( $args, &$ctx ) {
     if ( preg_match( "/rectangle$/", $type ) ) {
         $add_str = '-rectangle';
     }
-    $round =  $args[ 'round' ];
+    $round = $args[ 'round' ];
     require_once( 'MTUtil.php' );
     list( $url, $width, $height, $file ) = get_thumbnail_file( $asset, $blog, $args );
     $pinfo = pathinfo( $file );
