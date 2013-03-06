@@ -1,5 +1,6 @@
 <?php
 function smarty_function_mtassetthumbnailmagick ( $args, &$ctx ) {
+    $app = $ctx->stash( 'bootstrapper' );
     $asset = $ctx->stash( 'asset' );
     if (! $asset ) return '';
     if ( $asset->asset_class != 'image' ) return '';
@@ -7,10 +8,7 @@ function smarty_function_mtassetthumbnailmagick ( $args, &$ctx ) {
     if (! $blog ) return '';
     $type = strtolower( $args[ 'type' ] );
     if (! $type ) $type = 'circle';
-    $add_str = '-circle';
-    if ( preg_match( "/rectangle$/", $type ) ) {
-        $add_str = '-rectangle';
-    }
+    $add_str = '-' . $type;
     $round = $args[ 'round' ];
     require_once( 'MTUtil.php' );
     list( $url, $width, $height, $file ) = get_thumbnail_file( $asset, $blog, $args );
@@ -29,17 +27,42 @@ function smarty_function_mtassetthumbnailmagick ( $args, &$ctx ) {
         }
     }
     $im = new Imagick( $file );
-    $mask = new Imagick();
-    $mask->newImage( $width, $height, 'none', 'png' );
-    $idraw = new ImagickDraw();
-    $idraw->setFillColor( "#FFFFFF" );
-    if ( $type === 'circle' ) {
-        $idraw->ellipse( $width/2, $height/2, $width/2-1, $height/2-1, 0, 360 );
+    $mask;
+    $image_mask;
+    if ( ( $type === 'circle' ) || ( $type === 'roundrectangle' ) ) {
+        $mask = new Imagick();
+        $mask->newImage( $width, $height, 'none', 'png' );
+        $idraw = new ImagickDraw();
+        $idraw->setFillColor( "#FFFFFF" );
+        if ( $type === 'circle' ) {
+            $idraw->ellipse( $width/2, $height/2, $width/2-1, $height/2-1, 0, 360 );
+        } else {
+            $idraw->roundRectangle( 0, 0, $width, $height, $round, $round );
+        }
+        $mask->drawImage( $idraw );
     } else {
-        $idraw->roundRectangle( 0, 0, $width, $height, $round, $round );
+        $plugin_dir;
+        $pathes = $app->config( 'pluginpath' );
+        foreach ( $pathes as $path ) {
+            if (! preg_match('/addons$/', $path ) ) {
+                $plugin_dir = $path;
+                break;
+            }
+        }
+        $base = $plugin_dir . DIRECTORY_SEPARATOR . 'AssetThumbnailMagick' .
+                      DIRECTORY_SEPARATOR . 'masks' . DIRECTORY_SEPARATOR . $type . '.png';
+        if ( file_exists( $base ) ) {
+            $mask = new Imagick( $base );
+            $mask->resizeImage( $width * 2, $height * 2, imagick::FILTER_MITCHELL, 1, FALSE );
+            $im->resizeImage( $width*2, $height * 2, imagick::FILTER_MITCHELL, 1, FALSE );
+            $image_mask = 1;
+            // $mask->resizeImage( $width, $height, imagick::FILTER_MITCHELL, 1, FALSE );
+        }
     }
-    $mask->drawImage( $idraw );
     $mask->compositeImage( $im, Imagick::COMPOSITE_IN, 0, 0, Imagick::CHANNEL_ALL );
+    if ( $image_mask ) {
+        $mask->resizeImage( $width, $height, imagick::FILTER_MITCHELL, 1, FALSE );
+    }
     $mask->writeImage( $new );
     $idraw->destroy();
     $mask->destroy();

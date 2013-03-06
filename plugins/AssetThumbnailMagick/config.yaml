@@ -1,11 +1,11 @@
 name: AssetThumbnailMagick
 id  : AssetThumbnailMagick
 key:  assetthumbnailmagick
-version: 0.3
+description: <__trans phrase="It processes the thumbnail image using ImageMagick.">
+version: 0.4
 author_link: http://alfasado.net/
 author_name: Alfasado Inc.
 l10n_class: AssetThumbnailMagick::L10N
-description: <__trans phrase="It processes the thumbnail image using ImageMagick.">
 tags:
     function:
         AssetThumbnailMagick: AssetThumbnailMagick::Plugin::_hdlr_get_thumbnail
